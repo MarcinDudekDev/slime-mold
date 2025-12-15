@@ -56,6 +56,7 @@ export default function SlimeMold() {
 		let isDrawingWall = false;
 		let currentWall = [];
 		let lastTapTime = 0;
+		let pendingWallStart = null;
 
 		const w = () => window.innerWidth;
 		const h = () => window.innerHeight;
@@ -152,19 +153,19 @@ export default function SlimeMold() {
 			e.preventDefault();
 			const pos = getPos(e);
 			const now = Date.now();
-			
+
+			// Double-tap detected - prepare for potential wall (but don't activate yet)
 			if (now - lastTapTime < 300) {
-				isDrawingWall = true;
-				currentWall = [pos];
+				pendingWallStart = pos;
 				lastTapTime = 0;
-				clearTimeout(tapTimer);
 				clearTimeout(pressTimer);
 				pressTimer = null;
-				tapCount = 0;
-				return;
+				// Don't reset tapCount - let it accumulate for triple tap
+			} else {
+				pendingWallStart = null;
 			}
 			lastTapTime = now;
-			
+
 			lastPos = pos;
 			tapCount++;
 
@@ -182,11 +183,12 @@ export default function SlimeMold() {
 					}
 				}
 				tapCount = 0;
+				pendingWallStart = null;
 			}, 350);
 
 			clearTimeout(pressTimer);
 			pressTimer = setTimeout(() => {
-				if (!isDrawingWall) {
+				if (!isDrawingWall && !pendingWallStart) {
 					addMutation(pos.x, pos.y);
 				}
 				tapCount = 0;
@@ -196,9 +198,23 @@ export default function SlimeMold() {
 		};
 
 		const onMove = (e) => {
+			const pos = getPos(e);
+
+			// Activate wall mode on first drag after double-tap
+			if (pendingWallStart && !isDrawingWall) {
+				if (dist(pos, pendingWallStart) > 10) {
+					isDrawingWall = true;
+					currentWall = [pendingWallStart, pos];
+					pendingWallStart = null;
+					clearTimeout(tapTimer);
+					tapCount = 0;
+					e.preventDefault();
+					return;
+				}
+			}
+
 			if (!isDrawingWall) return;
 			e.preventDefault();
-			const pos = getPos(e);
 			if (currentWall.length === 0 || dist(pos, currentWall[currentWall.length - 1]) > 10) {
 				currentWall.push(pos);
 			}
@@ -209,12 +225,13 @@ export default function SlimeMold() {
 				clearTimeout(pressTimer);
 				pressTimer = null;
 			}
-			
+
 			if (isDrawingWall && currentWall.length > 1) {
 				walls.push({ points: currentWall, created: Date.now() });
 			}
 			isDrawingWall = false;
 			currentWall = [];
+			pendingWallStart = null;
 		};
 
 		canvas.addEventListener('touchstart', onStart, { passive: false });

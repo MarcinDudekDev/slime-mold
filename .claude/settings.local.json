@@ -4,7 +4,18 @@
       "Skill(git-workflow)",
       "Bash(/Users/cminds/Tools/push-to-github.sh)",
       "Bash(npm install)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(gh api:*)",
+      "Bash(gh workflow run:*)",
+      "Bash(gh run list:*)",
+      "Bash(/Users/cminds/Tools/p --add:*)",
+      "Bash(/Users/cminds/Tools/browser-test.sh:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_run_code",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }
