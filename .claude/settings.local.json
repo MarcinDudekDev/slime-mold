@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Skill(git-workflow)",
-      "Bash(/Users/cminds/Tools/push-to-github.sh)"
+      "Bash(/Users/cminds/Tools/push-to-github.sh)",
+      "Bash(npm install)",
+      "Bash(npm run dev:*)"
     ]
   }
 }
